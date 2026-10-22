@@ -1,0 +1,28 @@
+{
+  "name": "ZEEGY BOX",
+  "short_name": "ZEEGY",
+  "description": "أفلام ومسلسلات وأنمي وبث مباشر — يعمل مباشرة من جهازك بدون سيرفر",
+  "start_url": "./?src=pwa",
+  "scope": "./",
+  "id": "co.zeggy.box",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#0b0f11",
+  "theme_color": "#2de2d0",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["entertainment", "video", "movies"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "البث المباشر", "short_name": "البث", "url": "./live?src=shortcut" },
+    { "name": "البحث", "short_name": "بحث", "url": "./search?src=shortcut" },
+    { "name": "قائمتي", "short_name": "قائمتي", "url": "./my-list?src=shortcut" }
+  ]
+}
