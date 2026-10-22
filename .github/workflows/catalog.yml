@@ -1,0 +1,48 @@
+name: catalog
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: "عدد الأعمال لهذه الجولة"
+        default: "2400"
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: زحف وتحديث الكتالوج
+        env:
+          CATALOG_BUDGET: ${{ github.event.inputs.budget || '2400' }}
+        run: python catalog_build.py
+
+      - name: دفع التغييرات
+        run: |
+          git config user.name "zeggy-catalog"
+          git config user.email "actions@zeggy.local"
+          git add -A data
+          if git diff --cached --quiet; then
+            echo "لا تغييرات"
+          else
+            git commit -m "catalog: $(date -u +%Y-%m-%d_%H:%M)"
+            git push
+          fi
