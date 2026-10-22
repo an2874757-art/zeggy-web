@@ -12,6 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
+
       - name: probe api
         run: python3 probe_api_test.py
         if: runner.os != 'Windows'
