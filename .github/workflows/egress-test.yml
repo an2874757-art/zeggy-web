@@ -1,0 +1,21 @@
+name: egress-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: probe api
+        run: python3 probe_api_test.py
+        if: runner.os != 'Windows'
+
+      - name: probe api (windows)
+        run: python probe_api_test.py
+        if: runner.os == 'Windows'
