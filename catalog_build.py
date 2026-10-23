@@ -343,7 +343,11 @@ def main():
         # قائمة الشظايا (ترتيب ثابت حسب أرقام التصنيفات)
         cat_ids = sorted({str(c["id"]) for c in flat}, key=lambda s: int(s))
         extra = [c for c in shards if c not in cat_ids]
-        if save_json("index/list.json", {"shards": cat_ids + sorted(extra, key=int)}):
+        new_shards = cat_ids + sorted(extra, key=int)
+        if not new_shards and os.path.exists(os.path.join(DATA_DIR, "index", "list.json")):
+            # جولة محجوبة عن المصدر (تصنيفات صفر) — لا تفرغ فهرساً قائماً
+            print("⚠ جولة بلا شظايا — ترك فهرس البحث القائم دون مساس")
+        elif save_json("index/list.json", {"shards": new_shards}) and new_shards:
             changed_files += 1
         print("✔ الفهرس:", total_idx, "عنصراً في", len(shards), "شظية")
     except Exception as e:
