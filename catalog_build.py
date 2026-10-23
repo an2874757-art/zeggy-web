@@ -96,6 +96,32 @@ def save_json(rel, obj):
     return True
 
 
+def trim_ep_files(d):
+    """تقليص ملف الحلقة إلى ما يحتاجه المشغّل فقط (بلا مصفوفة الحلقات)"""
+    if not isinstance(d, dict):
+        return None
+    return {
+        "id": d.get("id"),
+        "show_id": d.get("show_id"),
+        "show_title": d.get("show_title"),
+        "show_type": d.get("show_type"),
+        "length": d.get("length"),
+        "image": d.get("image"),
+        "episode_number": d.get("episode_number"),
+        "season_number": d.get("season_number"),
+        "videos": [
+            {"url": v.get("url"), "quality": v.get("quality")}
+            for v in (d.get("videos") or [])
+            if isinstance(v, dict) and v.get("url")
+        ],
+        "subtitles": [
+            {"language": s.get("language"), "vtt": s.get("vtt")}
+            for s in (d.get("subtitles") or [])
+            if isinstance(s, dict) and s.get("vtt")
+        ],
+    }
+
+
 def load_state():
     if os.path.exists(STATE_PATH):
         try:
@@ -112,6 +138,14 @@ def main():
     shows_state = state.setdefault("shows", {})
     items_state = state.setdefault("items", {})
     changed_files = 0
+    # فهرس الحلقات (خريطة رقم الحلقة ⇒ رقم العمل) — يُحمَّل ويُحفَظ مع كل جولة
+    epindex = {}
+    try:
+        pth = os.path.join(DATA_DIR, "epindex.json")
+        if os.path.exists(pth):
+            epindex = json.load(open(pth, encoding="utf-8"))
+    except Exception:
+        epindex = {}
 
     # ═══① الرئيسة ═══
     home = fetch("/home")
@@ -233,11 +267,27 @@ def main():
             walk_eps(det)
             eps = list(dict.fromkeys(eps))
             save_json(f"show/{iid}.json", det)
+            bundle = {}
             for eid in eps:
                 files = fetch(f"/shows/episodes/{eid}/files")
-                if files is not None:
-                    save_json(f"ep/{eid}.json", files)
-            return {"h": item_hash(it), "ep": eps, "at": int(time.time())}
+                t = trim_ep_files(files)
+                if t:
+                    bundle[str(eid)] = t
+            epdx = {}
+            if bundle:
+                # دمج مع الحزمة القائمة (إعادة جولة تضيف الحلقات الجديدة فقط)
+                merged = bundle
+                try:
+                    pth = os.path.join(DATA_DIR, "eps", f"{iid}.json")
+                    if os.path.exists(pth):
+                        merged = dict(json.load(open(pth, encoding="utf-8")))
+                        merged.update(bundle)
+                except Exception:
+                    pass
+                if save_json(f"eps/{iid}.json", merged):
+                    changed_files += 1
+                epdx = bundle
+            return {"h": item_hash(it), "ep": eps, "at": int(time.time()), "epdx": epdx}
         except Exception:
             return None
 
@@ -246,17 +296,40 @@ def main():
     if budget:
         with ThreadPoolExecutor(max_workers=WORKERS) as pool:
             futs = {pool.submit(backfill, iid): iid for iid in new_ids[:budget]}
+            done_since_flush = 0
             for fut in as_completed(futs):
                 iid = futs[fut]
                 try:
                     res = fut.result()
                     if res:
                         shows_state[str(iid)] = res
+                        for ekey in res.pop("epdx", {}) or {}:
+                            epindex[ekey] = str(iid)
                         done += 1
+                        done_since_flush += 1
                 except Exception:
                     pass
                 if done % 100 == 0 and done:
                     print(f"  … زحف {done}/{budget}")
+                # حفظ دوري للحالة (لا يهدر التقدم عند الانقطاع) ✓
+                if done_since_flush >= 100:
+                    done_since_flush = 0
+                    try:
+                        with open(os.path.join(DATA_DIR, "epindex.json"), "w",
+                                  encoding="utf-8") as f:
+                            json.dump(epindex, f, ensure_ascii=False,
+                                      separators=(",", ":"))
+                    except Exception:
+                        pass
+                    try:
+                        state["items"] = {
+                            str(i): (universe.get(i) or {}).get("title", "")
+                            for i in list(universe)[:50000]
+                        }
+                        json.dump(state, open(STATE_PATH, "w", encoding="utf-8"),
+                                  ensure_ascii=False, separators=(",", ":"))
+                    except Exception:
+                        pass
     print(f"✔ زحف تفاصيل: {done}")
 
     # ═══⑤ فهرس البحث (شظايا لكل تصنيف — يتغيّر الجزئي فقط كل جولة) ═══
@@ -281,6 +354,11 @@ def main():
         str(i): (universe.get(i) or {}).get("title", "")
         for i in list(universe)[:50000]
     }
+    try:
+        with open(os.path.join(DATA_DIR, "epindex.json"), "w", encoding="utf-8") as f:
+            json.dump(epindex, f, ensure_ascii=False, separators=(",", ":"))
+    except Exception as e:
+        print("⚠ epindex:", e)
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, separators=(",", ":"))
     print("✔ الحالة:", len(shows_state), "عمل")
