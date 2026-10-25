@@ -17,10 +17,208 @@
     <link rel="apple-touch-icon" href="./brand/icon-180.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>ZEEGY BOX</title>
-    <script type="module" crossorigin src="./assets/index-CTrCsKtq.js"></script>
+    <script type="module" crossorigin src="./assets/index-8kng-r8-.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-v3FJa6X4.css">
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      شاشة الإقلاع: مضمّنة في HTML نفسه (بلا CSS خارجي وبلا JavaScript) —
+      تظهر فور فتح التطبيق حتى لو تعذّر تشغيل الكود أصلاً ✓
+      (كانت الشاشة سوداء إلى الأبد على تلفاز أندرويد 9 لأن الحزمة بصيغة es2020
+       لا يقرأها متصفّح WebView القديم Chrome 69–79).
+      React يحذف هذا العنصر تلقائياً عند نجاح التشغيل.
+    -->
+    <div id="root">
+      <div id="zeggy-boot" lang="ar" dir="rtl">
+        <style>
+          #zeggy-boot {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 9999;
+            display: block;
+            background: #0b0f11;
+            color: #ffffff;
+            font-family: "Almarai", -apple-system, BlinkMacSystemFont, "Segoe UI",
+              Roboto, "Noto Sans Arabic", Tahoma, sans-serif;
+            text-align: center;
+            padding: 40px;
+            box-sizing: border-box;
+            overflow: auto;
+          }
+          /* مسافات بدل flex gap — لأن gap للـflex يتطلب Chrome 84+ */
+          #zeggy-boot > div {
+            margin: 0 auto 26px;
+          }
+          #zeggy-boot > div:last-child {
+            margin-bottom: 0;
+          }
+          #zeggy-boot .zb-logo {
+            margin-top: 18vh;
+            width: 132px;
+            height: 132px;
+            border-radius: 30px;
+            background: #2de2d0;
+            color: #04231f;
+            font-size: 62px;
+            font-weight: 800;
+            line-height: 132px;
+            letter-spacing: -1px;
+            box-shadow: 0 14px 40px rgba(45, 226, 208, 0.28);
+          }
+          #zeggy-boot .zb-name {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #ffffff;
+          }
+          #zeggy-boot .zb-text {
+            font-size: 26px;
+            color: #93a4ab;
+          }
+          #zeggy-boot .zb-bar {
+            width: 320px;
+            max-width: 70vw;
+            height: 6px;
+            border-radius: 6px;
+            background: #223035;
+            overflow: hidden;
+          }
+          #zeggy-boot .zb-bar i {
+            display: block;
+            width: 40%;
+            height: 100%;
+            border-radius: 6px;
+            background: #2de2d0;
+            animation: zb-slide 1.2s ease-in-out infinite;
+          }
+          @keyframes zb-slide {
+            0% {
+              margin-right: -40%;
+            }
+            100% {
+              margin-right: 100%;
+            }
+          }
+          #zeggy-boot-err {
+            display: none;
+            max-width: 1100px;
+            direction: rtl;
+          }
+          #zeggy-boot-err .zb-err-title {
+            font-size: 34px;
+            font-weight: 800;
+            color: #ff8f8f;
+            margin-bottom: 18px;
+          }
+          #zeggy-boot-err .zb-err-body {
+            font-size: 24px;
+            line-height: 2;
+            color: #d8e3e7;
+          }
+          #zeggy-boot-err .zb-err-code {
+            direction: ltr;
+            text-align: left;
+            margin-top: 22px;
+            padding: 14px 16px;
+            border: 1px solid #223035;
+            border-radius: 10px;
+            background: #131a1d;
+            color: #ffd479;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 17px;
+            line-height: 1.7;
+            word-break: break-word;
+            max-height: 240px;
+            overflow: auto;
+            white-space: pre-wrap;
+          }
+          #zeggy-boot-err .zb-err-ua {
+            direction: ltr;
+            text-align: left;
+            margin-top: 10px;
+            color: #6f8188;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            word-break: break-all;
+          }
+          /* إن ظهرت مشكلة نُخفي شريط التحميل */
+          #zeggy-boot.zb-failed .zb-bar,
+          #zeggy-boot.zb-failed .zb-text {
+            display: none;
+          }
+          #zeggy-boot.zb-failed #zeggy-boot-err {
+            display: block;
+          }
+        </style>
+        <div class="zb-logo" aria-hidden="true">Z</div>
+        <div class="zb-name">ZEEGY BOX</div>
+        <div class="zb-text">جارٍ تشغيل التطبيق…</div>
+        <div class="zb-bar" aria-hidden="true"><i></i></div>
+        <div id="zeggy-boot-err" role="alert">
+          <div class="zb-err-title">تعذّر تشغيل التطبيق على هذا الجهاز</div>
+          <div class="zb-err-body">
+            لم يبدأ التطبيق خلال الوقت المطلوب.<br />
+            أرسل لنا لقطة شاشة لهذه الصفحة (بما فيها النص البرتقالي والرمادي أسفلها)
+            وسنحلّ المشكلة فوراً.
+          </div>
+          <div class="zb-err-code"><span id="zeggy-boot-errtext"></span></div>
+          <div class="zb-err-ua"><span id="zeggy-boot-ua"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      مؤقّت الأمان (JavaScript كلاسيكي قديم — بلا `?.` ولا `??` حتى يعمل على أي جهاز):
+      ① يلتقط أي خطأ مبكّر (منها فشل تحميل الكود) ويعرضه على الشاشة.
+      ② بعد 8 ثوانٍ: إن بقيت شاشة الإقلاع ظاهرة (أي أن التطبيق لم يبدأ)
+         يتحوّل عرض الخطأ بدل البقاء سوداء/معلّقة إلى الأبد ✓
+    -->
+    <script>
+      (function () {
+        var captured = [];
+        function note(msg) {
+          if (!msg) return;
+          msg = String(msg);
+          if (captured.indexOf(msg) === -1) captured.push(msg);
+        }
+
+        window.addEventListener(
+          "error",
+          function (e) {
+            var t = e && e.target;
+            if (t && (t.tagName === "SCRIPT" || t.tagName === "LINK")) {
+              note("فشل تحميل ملف: " + (t.src || t.href || ""));
+              return;
+            }
+            if (e && e.message) note(e.message + (e.filename ? "\n" + e.filename : ""));
+          },
+          true
+        );
+
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e && e.reason;
+          note((r && (r.message || r.toString())) || "Promise rejected");
+        });
+
+        setTimeout(function () {
+          var boot = document.getElementById("zeggy-boot");
+          if (!boot) return; /* التطبيق بدأ ✓ — لا شيء نفعله */
+
+          boot.className = "zb-failed";
+
+          var errBox = document.getElementById("zeggy-boot-errtext");
+          if (errBox) {
+            errBox.textContent = captured.length
+              ? captured.slice(0, 6).join("\n")
+              : "لم يصل أي كود إلى هذا الجهاز.\nالسبب المحتمل: متصفّح التلفاز قديم ولا يدعم بنية التطبيق الحديثة.";
+          }
+          var uaBox = document.getElementById("zeggy-boot-ua");
+          if (uaBox) uaBox.textContent = navigator.userAgent || "";
+        }, 8000);
+      })();
+    </script>
   </body>
 </html>
