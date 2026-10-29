@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7f1d1d"/><stop offset="1" stop-color="#450a0a"/></linearGradient></defs>
+  <rect width="512" height="512" rx="108" fill="url(#g)"/>
+  <circle cx="256" cy="256" r="198" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="6"/>
+  <g transform="translate(256 190)" fill="none" stroke="#ffffff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -62 18 -18 64 -12 30 18 39 62 0 38-39 62-30 18-64-12-18-18z" fill="#ffffff" stroke="none"/></g>
+  <text x="256" y="372" text-anchor="middle" direction="rtl" font-family="'Segoe UI','Noto Sans Arabic','Tahoma',sans-serif" font-size="84" font-weight="700" fill="#ffffff">إثارة</text>
+  
+</svg>
